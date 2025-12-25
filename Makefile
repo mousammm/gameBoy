@@ -26,6 +26,9 @@ $(BINDIR)/%.o: $(SRCDIR)/%.c | $(BINDIR)
 	@echo "Compiling $< -> $@"
 	$(CC) $(CFLAGS) -c $< -o $@
 
+run:
+	./$(BINDIR)/$(BINARY)
+
 clean:
 	rm  -rf $(BINDIR)
 
