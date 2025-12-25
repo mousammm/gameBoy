@@ -4,8 +4,8 @@ SRCDIR = src
 BINDIR = build
 BINARY = gameboy
 
-INCS = -I./includes
-LIBS = `sdl2-config --cflags --libs`
+INCS = -I./includes 
+LIBS = `sdl2-config --cflags --libs` -lSDL2_ttf
 
 CFLAGS = -Wall -Wextra -g $(INCS)
 LDLIBS = $(LIBS)
