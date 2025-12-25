@@ -3,7 +3,7 @@
 #include <cart.h>
 #include <cpu.h>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+// #include <SDL2/SDL_ttf.h>
 
 /* 
   Emu components:
@@ -41,7 +41,7 @@ int emu_run(int argc, char **argv) {
 
     SDL_Init(SDL_INIT_VIDEO);
     printf("SDL INIT\n");
-    TTF_Init();
+    // TTF_Init();
     printf("TTF INIT\n");
 
     cpu_init();
