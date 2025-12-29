@@ -75,11 +75,17 @@ Cartridge* load_rom(const char* filename)
     // MASK rom version
     cart->mask_rom_version = cart->rom_data[HEADER_MASK_ROM_VERSION];
 
+    // Checksums
+    cart->checksum = cart->rom_data[HEADER_CHECKSUM];
+    cart->global_checksum = (cart->rom_data[HEADER_GLOBAL_CHECKSUM] << 8) | 
+                            cart->rom_data[HEADER_GLOBAL_CHECKSUM + 1];
+
     return cart;
 }
 
 void print_rom_info(Cartridge *cart)
 {
+    printf("====================\n\n");
     printf("Title: %s\n", cart->title);
     printf("ROM Size: %u bytes (%d banks)\n", cart->rom_size, cart->rom_banks);
     printf("RAM Size: %u bytes (%d banks)\n", cart->ram_size, cart->ram_banks);
@@ -95,4 +101,7 @@ void print_rom_info(Cartridge *cart)
     // Old licensee code (common ones)
     printf("Old Licensee Code: 0x%02X\n", cart->old_licensee_code);
     printf("Mask ROM Version: %d\n", cart->mask_rom_version);
+    printf("Header Checksum: 0x%02X\n", cart->checksum);
+    printf("Global Checksum: 0x%04X\n", cart->global_checksum);
+    printf("====================\n\n");
 }
