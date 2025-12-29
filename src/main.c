@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-// Function defination
-void load_rom(const char* filename);
+#include "cartridge.h"
 
 int main(int argc, char **argv)
 {
@@ -16,17 +14,3 @@ int main(int argc, char **argv)
     exit(EXIT_SUCCESS);
 }
 
-void load_rom(const char* filename) {
-    FILE* file = fopen(filename, "rb");
-    if (!file) {
-        printf("Error opening ROM file: %s\n", filename);
-        return;
-    }
-    
-    // Get file size
-    fseek(file, 0, SEEK_END);
-    size_t file_size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    printf("File sixe: %zu\n", file_size);
-}
