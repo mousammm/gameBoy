@@ -95,3 +95,4 @@ typedef struct {
 
 // Function declaration
 Cartridge* load_rom(const char* filename);
+void print_rom_info(Cartridge *cart);

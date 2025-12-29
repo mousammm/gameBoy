@@ -9,7 +9,10 @@ int main(int argc, char **argv)
     	exit(EXIT_FAILURE);
     }
 
-    load_rom(argv[1]);
+    Cartridge *cart = load_rom(argv[1]);
+    // TODO: !cart
+
+    print_rom_info(cart);
 
     exit(EXIT_SUCCESS);
 }
