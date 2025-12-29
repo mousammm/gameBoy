@@ -14,6 +14,13 @@ int main(int argc, char **argv)
 
     print_rom_info(cart);
 
+    if(!verify_checksum(cart)) {
+        printf("WARNING: ROM checksum failed - ROM may be corrupted!\n");
+    } else {
+        printf("ROM checksum OK\n");
+    }
+
+    free_cartridge(cart);
     exit(EXIT_SUCCESS);
 }
 

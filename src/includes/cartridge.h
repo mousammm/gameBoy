@@ -4,6 +4,7 @@
 
 #pragma once
 #include <stdint.h>
+#include <stdbool.h>
 
 // Memory constants
 #define ROM_BANK_SIZE   0x4000      // 16KB
@@ -16,7 +17,7 @@
 #define HEADER_TITLE            0x134
 #define HEADER_CGB_FLAG         0x143
 #define HEADER_SGB_FLAG         0x146
-#define HEADER_CARTIDGE_TYPE    0x147
+#define HEADER_CARTIDGE_TYPE   0x147
 #define HEADER_ROM_SIZE         0x148
 #define HEADER_RAM_SIZE         0x149
 #define HEADER_DESTINATION_CODE 0x14A
@@ -96,3 +97,5 @@ typedef struct {
 // Function declaration
 Cartridge* load_rom(const char* filename);
 void print_rom_info(Cartridge *cart);
+bool verify_checksum(Cartridge *cart);
+void free_cartridge(Cartridge *cart);
