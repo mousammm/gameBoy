@@ -3,6 +3,9 @@
 #include "cartridge.h"
 #include "cpu.h"
 #include "mmu.h"
+#include "instruction.h"
+#include <signal.h>
+#include <time.h>
 
 int main(int argc, char **argv)
 {
@@ -27,8 +30,10 @@ int main(int argc, char **argv)
     MMU mmu;
     cpu_init(&cpu);
     mmu_init(&mmu, cart);
+    init_instruction_table();
 
     // print initial state register
+    printf("\n=== Initial CPU State ===\n");
     cpu_print_registers(&cpu);
 
     // Simple test: read first few bytes of ROM
