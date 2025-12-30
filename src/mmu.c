@@ -60,3 +60,175 @@ void mmu_init(MMU* mmu, Cartridge* cart)
     mmu->ie_register = 0x00;
     mmu->dma_active = false;
 }
+
+// Read byte from memory
+uint8_t mmu_read_byte(MMU* mmu, uint16_t address)
+{
+    if (!mmu) return 0xFF;
+
+    // Memory map decoding
+    if (address < 0x8000) {
+        // ROM area - handled by cartridge
+        if (!mmu->cart || !mmu->cart->rom_data) {
+            return 0xFF;
+        }
+        
+        // Simple ROM_ONLY implementation for now
+        // TODO: Implement proper banking
+        if (address < mmu->cart->rom_size) {
+            return mmu->cart->rom_data[address];
+        }
+        return 0xFF;
+    }
+    else if (address < 0xA000) {
+        // Video RAM
+        return mmu->vram[address - 0x8000];
+    }
+    else if (address < 0xC000) {
+        // External RAM (cartridge)
+        if (mmu->cart && mmu->cart->ram_data) {
+            // TODO: Implement banking
+            uint32_t offset = address - 0xA000;
+            if (offset < mmu->cart->ram_size) {
+                return mmu->cart->ram_data[offset];
+            }
+        }
+        return 0xFF;
+    }
+    else if (address < 0xE000) {
+        // Work RAM
+        return mmu->wram[address - 0xC000];
+    }
+    else if (address < 0xFE00) {
+        // Echo RAM (mirror of WRAM)
+        return mmu->wram[address - 0xE000];
+    }
+    else if (address < 0xFEA0) {
+        // OAM (Sprite attribute table)
+        return mmu->oam[address - 0xFE00];
+    }
+    else if (address < 0xFF00) {
+        // Unusable area (often returns 0x00)
+        return 0x00;
+    }
+    else if (address < 0xFF80) {
+        // I/O registers
+        uint8_t io_addr = address - 0xFF00;
+        if (io_addr < 0x80) {
+            return mmu->io[io_addr];
+        }
+        return 0xFF;
+    }
+    else if (address < 0xFFFF) {
+        // High RAM
+        return mmu->hram[address - 0xFF80];
+    }
+    else if (address == 0xFFFF) {
+        // Interrupt Enable Register
+        return mmu->ie_register;
+    }
+
+    return 0xFF;    // Open bus (shouldnt happen)
+}
+
+// Write byte to memory
+void mmu_write_byte(MMU* mmu, uint16_t address, uint8_t value)
+{
+    if (!mmu) return;
+    
+    // Memory map decoding
+    if (address < 0x8000) {
+        // ROM area - usually bank switching writes
+        // TODO: Implement MBC handling
+        // For now, ignore writes to ROM
+        return;
+    }
+    else if (address < 0xA000) {
+        // Video RAM
+        mmu->vram[address - 0x8000] = value;
+    }
+    else if (address < 0xC000) {
+        // External RAM (cartridge)
+        if (mmu->cart && mmu->cart->ram_data) {
+            uint32_t offset = address - 0xA000;
+            if (offset < mmu->cart->ram_size) {
+                mmu->cart->ram_data[offset] = value;
+            }
+        }
+    }
+    else if (address < 0xE000) {
+        // Work RAM
+        mmu->wram[address - 0xC000] = value;
+    }
+    else if (address < 0xFE00) {
+        // Echo RAM (mirror of WRAM)
+        mmu->wram[address - 0xE000] = value;
+    }
+    else if (address < 0xFEA0) {
+        // OAM (Sprite attribute table)
+        mmu->oam[address - 0xFE00] = value;
+    }
+    else if (address < 0xFF00) {
+        // Unusable area (writes ignored)
+        return;
+    }
+    else if (address < 0xFF80) {
+        // I/O registers
+        uint8_t io_addr = address - 0xFF00;
+        if (io_addr < 0x80) {
+            // Handle special I/O registers
+            switch (io_addr) {
+                case 0x00:  // JOYP - Joypad
+                    mmu->io[io_addr] = value | 0xCF;  // Upper bits always 1
+                    break;
+                case 0x04:  // DIV - Divider register (writes reset to 0)
+                    mmu->io[io_addr] = 0x00;
+                    break;
+                case 0x46:  // DMA - OAM DMA transfer
+                    mmu->io[io_addr] = value;
+                    // Start DMA transfer
+                    mmu->dma_active = true;
+                    mmu->dma_source = value << 8;
+                    mmu->dma_counter = 0;
+                    break;
+                default:
+                    mmu->io[io_addr] = value;
+                    break;
+            }
+        }
+    }
+    else if (address < 0xFFFF) {
+        // High RAM
+        mmu->hram[address - 0xFF80] = value;
+    }
+    else if (address == 0xFFFF) {
+        // Interrupt Enable Register
+        mmu->ie_register = value;
+    }
+}
+
+// Read 16-bit word (little-endian)
+uint16_t mmu_read_word(MMU* mmu, uint16_t address) {
+    uint8_t low = mmu_read_byte(mmu, address);
+    uint8_t high = mmu_read_byte(mmu, address + 1);
+    return (high << 8) | low;
+}
+
+// Write 16-bit word (little-endian)
+void mmu_write_word(MMU* mmu, uint16_t address, uint16_t value) {
+    mmu_write_byte(mmu, address, value & 0xFF);
+    mmu_write_byte(mmu, address + 1, value >> 8);
+}
+
+// Print memory for debugging
+void mmu_print_memory(MMU* mmu, uint16_t address, int bytes) {
+    printf("Memory at 0x%04X:\n", address);
+    for (int i = 0; i < bytes; i++) {
+        if (i % 16 == 0) {
+            if (i > 0) printf("\n");
+            printf("0x%04X: ", address + i);
+        }
+        printf("%02X ", mmu_read_byte(mmu, address + i));
+    }
+    printf("\n");
+}

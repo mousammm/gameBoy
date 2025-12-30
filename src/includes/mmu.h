@@ -47,3 +47,8 @@ typedef struct {
 
 // Function declaration 
 void mmu_init(MMU* mmu, Cartridge* cart);
+uint8_t mmu_read_byte(MMU* mmu, uint16_t address);
+void mmu_write_byte(MMU* mmu, uint16_t address, uint8_t value);
+uint16_t mmu_read_word(MMU* mmu, uint16_t address);
+void mmu_write_word(MMU* mmu, uint16_t address, uint16_t value);
+void mmu_print_memory(MMU* mmu, uint16_t address, int bytes);
