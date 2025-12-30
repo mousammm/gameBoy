@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cartridge.h"
+#include "cpu.h"
 
 int main(int argc, char **argv)
 {
@@ -19,6 +20,11 @@ int main(int argc, char **argv)
     } else {
         printf("ROM checksum OK\n");
     }
+
+    // Initialize CPU and MMU
+    CPU cpu;
+    cpu_init(&cpu);
+    cpu_print_registers(&cpu);
 
     free_cartridge(cart);
     exit(EXIT_SUCCESS);
