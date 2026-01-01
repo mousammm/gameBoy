@@ -10,7 +10,8 @@ int main(int argc, char **argv)
         return 0;
     } 
 
-    load_rom(argv[1]);
+    Cartridge* cart = load_rom(argv[1]);
 
+    free_cartridge(cart);
     return 0;
 }

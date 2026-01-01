@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void load_rom(char *file)
+Cartridge* load_rom(char *file)
 {
     // open rom file
     FILE *f = fopen(file, "rb");
@@ -27,6 +27,7 @@ void load_rom(char *file)
     parse_gb_header(cart);
     print_header(cart);
 
+    return cart;
 }
 
 void parse_gb_header(Cartridge* cart)
@@ -62,4 +63,10 @@ void print_header(Cartridge* cart)
     printf("Cartridge Type: 0x%02X\n", cart->cartridge_type);
     printf("ROM Size Code: 0x%02X\n", cart->rom_size);
     printf("RAM Size Code: 0x%02X\n", cart->ram_size);
+}
+
+void free_cartridge(Cartridge* cart)
+{
+    free(cart->data);
+    free(cart);
 }

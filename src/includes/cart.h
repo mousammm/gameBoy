@@ -23,6 +23,7 @@ typedef struct {
     uint16_t global_checksum;   // $14E-0x14F
 } Cartridge;
 
-void load_rom(char *file);
+Cartridge* load_rom(char *file);
 void parse_gb_header(Cartridge* cart);
 void print_header(Cartridge* cart);
+void free_cartridge(Cartridge* cart);
