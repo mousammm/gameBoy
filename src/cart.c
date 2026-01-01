@@ -3,27 +3,63 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-typedef struct {
-    uint8_t* data;          // Raw rom data
-    size_t size;            // Rom file size
-} Cartridge;
+#include <string.h>
 
 void load_rom(char *file)
 {
     // open rom file
     FILE *f = fopen(file, "rb");
+    // TODO: !f
     Cartridge* cart = malloc(sizeof(Cartridge));
+    // TODO: !cart
     
     // check rom size
     fseek(f, 0, SEEK_END);
     cart->size = ftell(f);
     rewind(f);
 
-    // get rom binary data
+    // put rom binary data in Cartridge->data
     cart->data = malloc(cart->size);
     fread(cart->data, 1, cart->size, f);
     fclose(f);
 
+    // parse gameboy header $100-$14F
+    parse_gb_header(cart);
+    print_header(cart);
+
+}
+
+void parse_gb_header(Cartridge* cart)
+{
+    // Parse cartdige header (starts from $100 in ROM)
+    memcpy(cart->entry, &cart->data[0x100], 4);
+    memcpy(cart->logo, &cart->data[0x104], 0x30);
+
+    // title
+    int title_len = 0;
+    for (int i = 0; i < 16; i++) {
+        char c = cart->data[0x134 + i];
+        if (c == 0) break;
+        cart->title[i] = c;
+        title_len++;
+    }
+    cart->title[title_len] = '\0';
+
+    // Extract other header info
+    cart->cartridge_type = cart->data[0x147];
+    cart->rom_size = cart->data[0x148];
+    cart->ram_size = cart->data[0x149];
+    cart->destination = cart->data[0x14A];
+    cart->version = cart->data[0x14C];
+    cart->header_checksum = cart->data[0x14D];
+}
+
+void print_header(Cartridge* cart)
+{
+    // printf(":%0X\n",cart->logo[0]);
+    printf("Title:%s\n",cart->title);
     printf("ROM size:%ld\n",cart->size);
+    printf("Cartridge Type: 0x%02X\n", cart->cartridge_type);
+    printf("ROM Size Code: 0x%02X\n", cart->rom_size);
+    printf("RAM Size Code: 0x%02X\n", cart->ram_size);
 }
