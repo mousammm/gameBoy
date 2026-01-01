@@ -11,6 +11,7 @@ int main(int argc, char **argv)
     } 
 
     Cartridge* cart = load_rom(argv[1]);
+    // TODO: !cart
 
     free_cartridge(cart);
     return 0;

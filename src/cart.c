@@ -58,11 +58,11 @@ void parse_gb_header(Cartridge* cart)
 void print_header(Cartridge* cart)
 {
     // printf(":%0X\n",cart->logo[0]);
-    printf("Title:%s\n",cart->title);
-    printf("ROM size:%ld\n",cart->size);
-    printf("Cartridge Type: 0x%02X\n", cart->cartridge_type);
-    printf("ROM Size Code: 0x%02X\n", cart->rom_size);
-    printf("RAM Size Code: 0x%02X\n", cart->ram_size);
+    printf("\tTitle:%s\n",cart->title);
+    printf("\tROM size:%ld\n",cart->size);
+    printf("\tCartridge Type: 0x%02X\n", cart->cartridge_type);
+    printf("\tROM Size Code: 0x%02X\n", cart->rom_size);
+    printf("\tRAM Size Code: 0x%02X\n", cart->ram_size);
 }
 
 void free_cartridge(Cartridge* cart)
