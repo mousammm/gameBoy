@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "cart.h"
+#include "cartridge.h"
 
 int main(int argc, char **argv)
 {
@@ -11,6 +11,6 @@ int main(int argc, char **argv)
     Cartridge* cart = load_rom(argv[1]);
     // TODO: !cart
 
-    free_cartridge(cart);
+    cartridge_free(cart);
     return 0;
 }

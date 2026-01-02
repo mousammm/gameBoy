@@ -26,4 +26,4 @@ typedef struct {
 Cartridge* load_rom(char *file);
 void parse_gb_header(Cartridge* cart);
 void print_header(Cartridge* cart);
-void free_cartridge(Cartridge* cart);
+void cartridge_free(Cartridge* cart);

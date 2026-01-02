@@ -1,4 +1,4 @@
-#include "cart.h"
+#include "cartridge.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,7 +63,7 @@ void print_header(Cartridge* cart)
     printf("\tRAM Size Code: 0x%02X\n", cart->ram_size);
 }
 
-void free_cartridge(Cartridge* cart)
+void cartridge_free(Cartridge* cart)
 {
     free(cart->data);
     free(cart);
