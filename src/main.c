@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include "cartridge.h"
+#include "cpu.h"
+#include "mmu.h"
 
 int main(int argc, char **argv)
 {
@@ -10,7 +12,20 @@ int main(int argc, char **argv)
 
     Cartridge* cart = load_rom(argv[1]);
     // TODO: !cart
+    
+    MMU* mmu = mmu_create();
+    mmu_init(mmu, cart);
 
+    CPU* cpu = cpu_create();
+    cpu_init(cpu, mmu);
+
+    printf("\nExecuting first 10 instructions:\n");
+    for (int i = 0; i < 10; i++) {
+        cpu_step(cpu);
+    }
+
+    free(cpu);
+    free(mmu);
     cartridge_free(cart);
     return 0;
 }
