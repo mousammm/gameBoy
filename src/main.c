@@ -1,6 +1,4 @@
-#include <stddef.h>
 #include <stdio.h>
-
 #include "cart.h"
 
 int main(int argc, char **argv)
