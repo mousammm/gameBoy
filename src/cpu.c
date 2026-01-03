@@ -38,7 +38,7 @@ int cpu_step(CPU* cpu, MMU* mmu) {
     // Decode and execute (start with just NOP)
     switch(opcode) {
         case 0x00:  // NOP - Do nothing
-            printf("NOP:0x%02X PC:0x%04X\n", opcode, cpu->pc - 1);
+            printf("OPCODE:0x%02X PC:0x%04X OK\n", opcode, cpu->pc - 1);
             return 4;  // NOP takes 4 cycles
             
         case 0x3E:  // LD A, n - Load immediate into A
@@ -46,7 +46,7 @@ int cpu_step(CPU* cpu, MMU* mmu) {
             uint8_t value = mmu->mbc->read_rom(mmu->mbc, cpu->pc);
             cpu->pc++;
             cpu->a = value;
-            printf("LD A, 0x%02X:0x%02X 0x%04X\n", value, opcode, cpu->pc - 2);
+            printf("OPCODE:0x%02X PC:0x%04X\n OK", opcode, cpu->pc - 2);
             return 8;  // 8 cycles
         }
         
@@ -58,12 +58,12 @@ int cpu_step(CPU* cpu, MMU* mmu) {
             cpu->pc++;
             uint16_t address = (high << 8) | low;
             cpu->pc = address;
-            printf("JP 0x%04X at PC: 0x%04X\n", address, cpu->pc);
+            printf("OPCODE:0x%02X PC:0x%04X OK\n", opcode, cpu->pc);
             return 16;  // 16 cycles
         }
         
         default:
-            printf("Unknown opcode: 0x%02X at PC: 0x%04X\n", 
+            printf("OPCODE:0x%02X PC:0x%04X --\n", 
                    opcode, cpu->pc - 1);
             return 4;
     }
