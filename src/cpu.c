@@ -32,7 +32,7 @@ void cpu_init(CPU* cpu, MMU* mmu) {
 
 int cpu_step(CPU* cpu, MMU* mmu) {
     // Fetch instruction at PC
-    uint8_t opcode = mmu->mbc->read_rom(mmu->mbc, cpu->pc);
+    uint8_t opcode = cpu->mmu->mbc->read_rom(mmu->mbc, cpu->pc);
     cpu->pc++;  // Move to next byte
     
     // Decode and execute (start with just NOP)

@@ -26,7 +26,6 @@ int main(int argc, char **argv)
         cpu_step(cpu,mmu);
     }
 
-    
     free(cpu);
     free(mmu);
     cartridge_free(cart);

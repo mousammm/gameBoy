@@ -5,7 +5,6 @@
 
 typedef struct MBC MBC;
 
-// Function pointers for polymorphism
 // All MBCs must implement these
 typedef uint8_t (*MBC_ReadRomFunc)(MBC* mbc, uint16_t address);
 typedef void (*MBC_WriteRomFunc)(MBC* mbc, uint16_t address, uint8_t value);

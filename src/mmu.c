@@ -15,6 +15,21 @@ void mmu_init(MMU* mmu, Cartridge* cart) {
     
     // Clear all memory
     memset(mmu->memory, 0, sizeof(mmu->memory));
+
+    // Set up some default register values
+    mmu->memory[0xFF05] = 0x00;  // TIMA
+    mmu->memory[0xFF06] = 0x00;  // TMA
+    mmu->memory[0xFF07] = 0x00;  // TAC
+    mmu->memory[0xFF40] = 0x91;  // LCDC
+    mmu->memory[0xFF42] = 0x00;  // SCY
+    mmu->memory[0xFF43] = 0x00;  // SCX
+    mmu->memory[0xFF45] = 0x00;  // LYC
+    mmu->memory[0xFF47] = 0xFC;  // BGP
+    mmu->memory[0xFF48] = 0xFF;  // OBP0
+    mmu->memory[0xFF49] = 0xFF;  // OBP1
+    mmu->memory[0xFF4A] = 0x00;  // WY
+    mmu->memory[0xFF4B] = 0x00;  // WX
+    mmu->memory[0xFFFF] = 0x00;  // IE
     
     // Create appropriate MBC based on cartridge type
     switch(cart->cartridge_type) {
@@ -37,8 +52,16 @@ void mmu_init(MMU* mmu, Cartridge* cart) {
             break;
     }
     
-    // DO NOT copy ROM to memory array!
+    // No copy to ROM to memory array!
     // MBC will handle ROM reads dynamically
+}
+
+void mmu_free(MMU* mmu) {
+    if (mmu->mbc) {
+        free(mmu->mbc->ram_data);
+        free(mmu->mbc);
+    }
+    free(mmu);
 }
 
 uint8_t mmu_read(MMU* mmu, uint16_t address) {
@@ -75,10 +98,3 @@ void mmu_write(MMU* mmu, uint16_t address, uint8_t value) {
     }
 }
 
-void mmu_free(MMU* mmu) {
-    if (mmu->mbc) {
-        free(mmu->mbc->ram_data);
-        free(mmu->mbc);
-    }
-    free(mmu);
-}
