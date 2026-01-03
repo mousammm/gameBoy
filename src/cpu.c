@@ -57,36 +57,29 @@ int cpu_step(CPU* cpu) {
     // Decode and execute
     switch(opcode) {
         case 0x00:  // NOP - Do nothing
-            printf("OPCODE:0x%02X PC:0x%04X OK\n", opcode, cpu->pc - 1);
             return 4;  // NOP takes 4 cycles
             
         case 0x3E:  // LD A, n - Load immediate into A
         {
             cpu->a = mmu_read(cpu->mmu, cpu->pc++);
-            printf("OPCODE:0x%02X PC:0x%04X OK\n", opcode, cpu->pc - 2);
             return 8;  // 8 cycles
         }
         
         case 0xC3:  // JP nn - Jump to address
         {
             cpu->pc = cpu_read16(cpu, cpu->pc);
-            printf("OPCODE:0x%02X PC:0x%04X OK\n", opcode, cpu->pc);
             return 16;  // 16 cycles
         }
         
         // === HALT/STOP ===
         case 0x76:  // HALT
             cpu->halted = true;
-            printf("OPCODE:0x%02X PC:0x%04X OK\n", opcode, cpu->pc);
             return 4;
             
         case 0x10:  // STOP (treated as NOP for now)
-            printf("OPCODE:0x%02X PC:0x%04X OK\n", opcode, cpu->pc);
             return 4;
 
         default:
-            printf("OPCODE:0x%02X PC:0x%04X --\n", 
-                   opcode, cpu->pc - 1);
             return 4;
     }
 }

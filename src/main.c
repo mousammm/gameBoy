@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "cartridge.h"
 #include "cpu.h"
+#include "disassemble.h"
 #include "mmu.h"
 
 int main(int argc, char **argv)
@@ -21,11 +22,39 @@ int main(int argc, char **argv)
     CPU* cpu = cpu_create();
     cpu_init(cpu, mmu);
 
+    int total_instructions = 100;
+    int total_cycles = 0;
+
     // execute 1st 10 ins
-    for (int i = 0; i < 32768; i++) {
-        cpu_step(cpu);
+    for (int i = 0; i < total_instructions; i++) {
+        uint16_t current_pc = cpu->pc;
+        int cycles = cpu_step(cpu);
+        total_cycles += cycles;
+
+        // get the current opcode that was just executed
+        uint8_t opcode = mmu_read(mmu, current_pc);
+        printf("PC:0x%04X | OP:0x%02X   | ", current_pc, opcode);
+
+        // disassemble opcode
+        d_asm_opcode(opcode);
+        printf(" (%d cycles)\n", cycles);
+
+        // Stop if CPU halted
+        if (cpu->halted) {
+            printf("\nCPU halted at instruction %d\n", i + 1);
+            break;
+        }
     }
 
+    // CPU state
+    printf("PC: 0x%04X  SP: 0x%04X\n", cpu->pc, cpu->sp);
+    printf("AF: 0x%02X%02X  BC: 0x%02X%02X\n", 
+           cpu->a, cpu->f, cpu->b, cpu->c);
+    printf("DE: 0x%02X%02X  HL: 0x%02X%02X\n",
+           cpu->d, cpu->e, cpu->h, cpu->l);
+    printf("Total cycles: %d\n", total_cycles);
+
+    // Cleanup
     free(cpu);
     free(mmu);
     cartridge_free(cart);

@@ -30,7 +30,7 @@ int mmu_init(MMU* mmu, Cartridge* cart) {
     mmu->memory[0xFF4A] = 0x00;  // WY
     mmu->memory[0xFF4B] = 0x00;  // WX
     mmu->memory[0xFFFF] = 0x00;  // IE
-    
+
     // Create appropriate MBC based on cartridge type
     switch(cart->cartridge_type) {
         case 0x00:  // ROM ONLY
