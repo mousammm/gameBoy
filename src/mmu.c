@@ -1,8 +1,9 @@
-#include "mmu.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "mmu.h"
 
 MMU* mmu_create(void)
 {
@@ -14,13 +15,13 @@ MMU* mmu_create(void)
 void mmu_init(MMU* mmu, Cartridge *cart)
 {
     mmu->cartridge = cart;
-    mmu->mbc = NULL;
 
     // Clear all memory
     memset(mmu->memory, 0, sizeof(mmu->memory));
 
     // For type 0x00 only
-    if (cart->cartridge_type == 0x00) {
+    // if (cart->cartridge_type == 0x00) {
+    if (cart->cartridge_type) {
         printf("Loading type 0x00 ROM (no banking)\n");
 
         // Bank 0: 0x0000-0x3FFF (16kb)
@@ -38,23 +39,38 @@ void mmu_init(MMU* mmu, Cartridge *cart)
 
         printf("ROM loaded: %zu bytes mapped to memory\n", cart->size);
     }
-}
 
-uint8_t mmu_read(MMU *mmu, uint16_t address)
-{
-    // for 0x00, rom is already mapped to memory 
-    // JUst read from it directly
-    return mmu->memory[address];
-}
+    switch (cart->cartridge_type) {
+        case 0x00:
+            mmu->mbc = mbc_none_create(cart);
+            break;
 
-void mmu_write(MMU *mmu, uint16_t address, uint8_t value)
-{
-    // Dont allow wirting to ROM area for type 0x00
-    if (address < 0x8000) {
-        // ROM area - ignore
-        return; 
+        default:
+            printf("Not Implemented for cartridge_type:0x%02X", cart->cartridge_type);
+    
     }
+}
 
-    // Allow writes to other areas
-    mmu->memory[address] = value;
+// 0x00 ROM only
+MBC* mbc_none_create(Cartridge* cart)
+{
+    MBC* mbc = malloc(sizeof(MBC));
+
+    mbc->read_rom = mbc_none_read_rom;
+    mbc->read_ram = NULL; // does nothing
+
+    mbc->rom_data = cart->data;
+    mbc->rom_size= cart->size;
+    mbc->ram_data = NULL;   // No ram
+    mbc->ram_size = 0;
+
+    return mbc;
+}
+
+uint8_t mbc_none_read_rom(MBC* mbc, uint16_t address)
+{
+    if (address < mbc->rom_size) {
+        return mbc->rom_data[address];
+    }
+    return 0xFF;
 }

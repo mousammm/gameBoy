@@ -30,31 +30,31 @@ void cpu_init(CPU* cpu, MMU* mmu) {
     cpu->l = 0x4D;
 }
 
-int cpu_step(CPU* cpu) {
+int cpu_step(CPU* cpu, MMU* mmu) {
     // Fetch instruction at PC
-    uint8_t opcode = mmu_read(cpu->mmu, cpu->pc);
+    uint8_t opcode = mmu->mbc->read_rom(mmu->mbc, cpu->pc);
     cpu->pc++;  // Move to next byte
     
     // Decode and execute (start with just NOP)
     switch(opcode) {
         case 0x00:  // NOP - Do nothing
-            printf("NOP at PC: 0x%04X\n", cpu->pc - 1);
+            printf("NOP:0x%02X PC:0x%04X\n", opcode, cpu->pc - 1);
             return 4;  // NOP takes 4 cycles
             
         case 0x3E:  // LD A, n - Load immediate into A
         {
-            uint8_t value = mmu_read(cpu->mmu, cpu->pc);
+            uint8_t value = mmu->mbc->read_rom(mmu->mbc, cpu->pc);
             cpu->pc++;
             cpu->a = value;
-            printf("LD A, 0x%02X at PC: 0x%04X\n", value, cpu->pc - 2);
+            printf("LD A, 0x%02X:0x%02X 0x%04X\n", value, opcode, cpu->pc - 2);
             return 8;  // 8 cycles
         }
         
         case 0xC3:  // JP nn - Jump to address
         {
-            uint8_t low = mmu_read(cpu->mmu, cpu->pc);
+            uint8_t low = mmu->mbc->read_rom(mmu->mbc, cpu->pc);
             cpu->pc++;
-            uint8_t high = mmu_read(cpu->mmu, cpu->pc);
+            uint8_t high = mmu->mbc->read_rom(mmu->mbc, cpu->pc);
             cpu->pc++;
             uint16_t address = (high << 8) | low;
             cpu->pc = address;

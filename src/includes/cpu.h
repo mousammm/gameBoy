@@ -1,5 +1,4 @@
-#ifndef CPU_H
-#define CPU_H
+#pragma once
 
 #include "mmu.h"
 #include <stdint.h>
@@ -22,6 +21,4 @@ CPU* cpu_create(void);
 void cpu_init(CPU* cpu, MMU* mmu);
 
 // Execute one instruction
-int cpu_step(CPU* cpu);
-
-#endif // !CPU_H
+int cpu_step(CPU* cpu, MMU* mmu);

@@ -13,15 +13,17 @@ int main(int argc, char **argv)
     Cartridge* cart = load_rom(argv[1]);
     // TODO: !cart
     
+    // Init memory managment unit
     MMU* mmu = mmu_create();
     mmu_init(mmu, cart);
 
+    // Init cpu
     CPU* cpu = cpu_create();
     cpu_init(cpu, mmu);
 
     printf("\nExecuting first 10 instructions:\n");
     for (int i = 0; i < 10; i++) {
-        cpu_step(cpu);
+        cpu_step(cpu,mmu);
     }
 
     free(cpu);
