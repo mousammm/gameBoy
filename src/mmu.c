@@ -20,24 +20,20 @@ void mmu_init(MMU* mmu, Cartridge* cart) {
     switch(cart->cartridge_type) {
         case 0x00:  // ROM ONLY
             mmu->mbc = mbc_none_create(cart);
-            printf("Created MBC: ROM ONLY (type 0x00)\n");
+            printf("Cartridge Type (type 0x00)\n");
             break;
             
         case 0x01:  // MBC1
         case 0x02:  // MBC1 + RAM
         case 0x03:  // MBC1 + RAM + BATTERY
             // mmu->mbc = mbc1_create(cart);  // Implement later
-            printf("MBC1 not implemented yet (type 0x%02X)\n", 
-                   cart->cartridge_type);
-            // Fall back to ROM-only for now
-            mmu->mbc = mbc_none_create(cart);
+            printf("Cartridge Type NOT Implemented(type 0x%02X)\n",cart->cartridge_type);
+            return;
             break;
             
         default:
-            printf("Unsupported cartridge type: 0x%02X\n", 
-                   cart->cartridge_type);
-            // Fall back to ROM-only
-            mmu->mbc = mbc_none_create(cart);
+            printf("Cartridge Type NOT Implemented(type 0x%02X)\n",cart->cartridge_type);
+            return;
             break;
     }
     

@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include "mbc.h"
 
@@ -26,7 +25,6 @@ void mbc_none_write_ram(MBC* mbc, uint16_t address, uint8_t value) {
 
 // No extra data needed for ROM-only
 // (Type_data is NULL)
-
 MBC* mbc_none_create(Cartridge* cart) {
     MBC* mbc = malloc(sizeof(MBC));
     
