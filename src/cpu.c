@@ -46,7 +46,7 @@ int cpu_step(CPU* cpu, MMU* mmu) {
             uint8_t value = mmu->mbc->read_rom(mmu->mbc, cpu->pc);
             cpu->pc++;
             cpu->a = value;
-            printf("OPCODE:0x%02X PC:0x%04X\n OK", opcode, cpu->pc - 2);
+            printf("OPCODE:0x%02X PC:0x%04X OK\n", opcode, cpu->pc - 2);
             return 8;  // 8 cycles
         }
         

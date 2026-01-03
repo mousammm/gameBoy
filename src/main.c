@@ -21,8 +21,8 @@ int main(int argc, char **argv)
     CPU* cpu = cpu_create();
     cpu_init(cpu, mmu);
 
-    printf("\nExecuting first 10 instructions:\n");
-    for (int i = 0; i < 10; i++) {
+    // execute 1st 10 ins
+    for (int i = 0; i < 32768; i++) {
         cpu_step(cpu,mmu);
     }
 
