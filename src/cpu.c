@@ -1,8 +1,8 @@
 // cpu.c - MINIMAL IMPLEMENTATION
-#include "cpu.h"
-#include "mmu.h"
 #include <stdio.h>
 #include <string.h>
+#include "cpu.h"
+#include "mmu.h"
 
 CPU* cpu_create(void) {
     CPU* cpu = malloc(sizeof(CPU));

@@ -1,76 +1,88 @@
-#include <stddef.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "mmu.h"
 
-MMU* mmu_create(void)
-{
+MMU* mmu_create(void) {
     MMU* mmu = malloc(sizeof(MMU));
     memset(mmu, 0, sizeof(MMU));
     return mmu;
 }
 
-void mmu_init(MMU* mmu, Cartridge *cart)
-{
-    mmu->cartridge = cart;
-
+void mmu_init(MMU* mmu, Cartridge* cart) {
+    mmu->cart = cart;
+    
     // Clear all memory
     memset(mmu->memory, 0, sizeof(mmu->memory));
-
-    // For type 0x00 only
-    // if (cart->cartridge_type == 0x00) {
-    if (cart->cartridge_type) {
-        printf("Loading type 0x00 ROM (no banking)\n");
-
-        // Bank 0: 0x0000-0x3FFF (16kb)
-        // if rom size is > 16kb bank0_size = 16kb else bank0_size = rom size
-        size_t bank0_size = (cart->size > 0x4000) ? 0x4000 : cart->size;
-        memcpy(&mmu->memory[0x0000], cart->data, bank0_size);
-
-        // Bank 1: 0x4000-0x7FFF (16kb) if rom has it
-        if (cart->size > 0x4000) {
-            size_t remaning = cart->size - 0x4000; // 20 - 16 = 4kb
-            // if 4kb is > 16kb :T=16kb F:4kb
-            size_t bank1_size = (remaning > 0x4000) ? 0x4000 : remaning;
-            memcpy(&mmu->memory[0x4000], &cart->data[0x4000], bank1_size);
-        }
-
-        printf("ROM loaded: %zu bytes mapped to memory\n", cart->size);
-    }
-
-    switch (cart->cartridge_type) {
-        case 0x00:
+    
+    // Create appropriate MBC based on cartridge type
+    switch(cart->cartridge_type) {
+        case 0x00:  // ROM ONLY
+            mmu->mbc = mbc_none_create(cart);
+            printf("Created MBC: ROM ONLY (type 0x00)\n");
+            break;
+            
+        case 0x01:  // MBC1
+        case 0x02:  // MBC1 + RAM
+        case 0x03:  // MBC1 + RAM + BATTERY
+            // mmu->mbc = mbc1_create(cart);  // Implement later
+            printf("MBC1 not implemented yet (type 0x%02X)\n", 
+                   cart->cartridge_type);
+            // Fall back to ROM-only for now
             mmu->mbc = mbc_none_create(cart);
             break;
-
+            
         default:
-            printf("Not Implemented for cartridge_type:0x%02X", cart->cartridge_type);
+            printf("Unsupported cartridge type: 0x%02X\n", 
+                   cart->cartridge_type);
+            // Fall back to ROM-only
+            mmu->mbc = mbc_none_create(cart);
+            break;
+    }
     
+    // DO NOT copy ROM to memory array!
+    // MBC will handle ROM reads dynamically
+}
+
+uint8_t mmu_read(MMU* mmu, uint16_t address) {
+    // Handle different memory areas
+    if (address < 0x8000) {
+        // ROM area - delegate to MBC
+        return mmu->mbc->read_rom(mmu->mbc, address);
+    }
+    else if (address >= 0xA000 && address < 0xC000) {
+        // External RAM area - delegate to MBC
+        return mmu->mbc->read_ram(mmu->mbc, address);
+    }
+    else {
+        // Internal memory (VRAM, WRAM, OAM, IO, HRAM)
+        return mmu->memory[address];
     }
 }
 
-// 0x00 ROM only
-MBC* mbc_none_create(Cartridge* cart)
-{
-    MBC* mbc = malloc(sizeof(MBC));
-
-    mbc->read_rom = mbc_none_read_rom;
-    mbc->read_ram = NULL; // does nothing
-
-    mbc->rom_data = cart->data;
-    mbc->rom_size= cart->size;
-    mbc->ram_data = NULL;   // No ram
-    mbc->ram_size = 0;
-
-    return mbc;
+void mmu_write(MMU* mmu, uint16_t address, uint8_t value) {
+    // Handle ROM area writes (for banking)
+    if (address < 0x8000) {
+        // Delegate to MBC (may change banking)
+        mmu->mbc->write_rom(mmu->mbc, address, value);
+        return;
+    }
+    else if (address >= 0xA000 && address < 0xC000) {
+        // External RAM writes
+        mmu->mbc->write_ram(mmu->mbc, address, value);
+        return;
+    }
+    else {
+        // Internal memory writes
+        mmu->memory[address] = value;
+    }
 }
 
-uint8_t mbc_none_read_rom(MBC* mbc, uint16_t address)
-{
-    if (address < mbc->rom_size) {
-        return mbc->rom_data[address];
+void mmu_free(MMU* mmu) {
+    if (mmu->mbc) {
+        free(mmu->mbc->ram_data);
+        free(mmu->mbc);
     }
-    return 0xFF;
+    free(mmu);
 }
