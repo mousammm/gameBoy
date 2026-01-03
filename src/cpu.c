@@ -37,7 +37,14 @@ void cpu_free(CPU *cpu)
     free(cpu);
 }
 
-int cpu_step(CPU* cpu, MMU* mmu) {
+// Helper: Read 16-bit value from memory
+static uint16_t cpu_read16(CPU* cpu, uint16_t address) {
+    uint8_t low = mmu_read(cpu->mmu, address);
+    uint8_t high = mmu_read(cpu->mmu, address + 1);
+    return (high << 8) | low;
+}
+
+int cpu_step(CPU* cpu) {
     // Dont execute if halted
     if (cpu->halted) {
         return 4;   // still consumes cycles
@@ -55,25 +62,28 @@ int cpu_step(CPU* cpu, MMU* mmu) {
             
         case 0x3E:  // LD A, n - Load immediate into A
         {
-            uint8_t value = mmu->mbc->read_rom(mmu->mbc, cpu->pc);
-            cpu->pc++;
-            cpu->a = value;
+            cpu->a = mmu_read(cpu->mmu, cpu->pc++);
             printf("OPCODE:0x%02X PC:0x%04X OK\n", opcode, cpu->pc - 2);
             return 8;  // 8 cycles
         }
         
         case 0xC3:  // JP nn - Jump to address
         {
-            uint8_t low = mmu->mbc->read_rom(mmu->mbc, cpu->pc);
-            cpu->pc++;
-            uint8_t high = mmu->mbc->read_rom(mmu->mbc, cpu->pc);
-            cpu->pc++;
-            uint16_t address = (high << 8) | low;
-            cpu->pc = address;
+            cpu->pc = cpu_read16(cpu, cpu->pc);
             printf("OPCODE:0x%02X PC:0x%04X OK\n", opcode, cpu->pc);
             return 16;  // 16 cycles
         }
         
+        // === HALT/STOP ===
+        case 0x76:  // HALT
+            cpu->halted = true;
+            printf("OPCODE:0x%02X PC:0x%04X OK\n", opcode, cpu->pc);
+            return 4;
+            
+        case 0x10:  // STOP (treated as NOP for now)
+            printf("OPCODE:0x%02X PC:0x%04X OK\n", opcode, cpu->pc);
+            return 4;
+
         default:
             printf("OPCODE:0x%02X PC:0x%04X --\n", 
                    opcode, cpu->pc - 1);

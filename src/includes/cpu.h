@@ -36,7 +36,7 @@ void cpu_init(CPU* cpu, MMU* mmu);
 void cpu_free(CPU* cpu);
 
 // Execute one instruction
-int cpu_step(CPU* cpu, MMU* mmu);   // Execute on instruction
+int cpu_step(CPU* cpu);   // Execute on instruction
 void cpu_request_interrupt(CPU* cpu, uint8_t interrupt);
 
 // Flag helpers
@@ -45,8 +45,7 @@ static inline bool cpu_get_flag(CPU* cpu, uint8_t flag)
     return (cpu->f & flag) != 0;
 }
 
-static inline bool cpu_set_flag(CPU* cpu, uint8_t flag, bool value)
-{
+static inline void cpu_set_flag(CPU* cpu, uint8_t flag, bool value) {
     if (value) {
         cpu->f |= flag;
     } else {

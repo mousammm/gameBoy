@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 
     // execute 1st 10 ins
     for (int i = 0; i < 32768; i++) {
-        cpu_step(cpu,mmu);
+        cpu_step(cpu);
     }
 
     free(cpu);
