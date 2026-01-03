@@ -15,7 +15,7 @@ int main(int argc, char **argv)
     
     // Init memory managment unit
     MMU* mmu = mmu_create();
-    mmu_init(mmu, cart);
+    if (mmu_init(mmu, cart) == -1) return 0;
 
     // Init cpu
     CPU* cpu = cpu_create();

@@ -16,7 +16,7 @@ typedef struct MMU {
 
 // Public interface
 MMU* mmu_create(void);
-void mmu_init(MMU* mmu, Cartridge* cart);
+int mmu_init(MMU* mmu, Cartridge* cart);
 void mmu_free(MMU* mmu);
 
 // Memory access

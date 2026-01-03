@@ -10,7 +10,7 @@ MMU* mmu_create(void) {
     return mmu;
 }
 
-void mmu_init(MMU* mmu, Cartridge* cart) {
+int mmu_init(MMU* mmu, Cartridge* cart) {
     mmu->cart = cart;
     
     // Clear all memory
@@ -36,6 +36,7 @@ void mmu_init(MMU* mmu, Cartridge* cart) {
         case 0x00:  // ROM ONLY
             mmu->mbc = mbc_none_create(cart);
             printf("Cartridge Type (type 0x00)\n");
+            return 0;
             break;
             
         case 0x01:  // MBC1
@@ -43,17 +44,14 @@ void mmu_init(MMU* mmu, Cartridge* cart) {
         case 0x03:  // MBC1 + RAM + BATTERY
             // mmu->mbc = mbc1_create(cart);  // Implement later
             printf("Cartridge Type NOT Implemented(type 0x%02X)\n",cart->cartridge_type);
-            return;
+            return -1;
             break;
             
         default:
             printf("Cartridge Type NOT Implemented(type 0x%02X)\n",cart->cartridge_type);
-            return;
+            return -1;
             break;
     }
-    
-    // No copy to ROM to memory array!
-    // MBC will handle ROM reads dynamically
 }
 
 void mmu_free(MMU* mmu) {
@@ -97,4 +95,3 @@ void mmu_write(MMU* mmu, uint16_t address, uint8_t value) {
         mmu->memory[address] = value;
     }
 }
-
