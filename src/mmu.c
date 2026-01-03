@@ -96,3 +96,14 @@ void mmu_write(MMU* mmu, uint16_t address, uint8_t value) {
         mmu->memory[address] = value;
     }
 }
+
+uint16_t mmu_read16(MMU* mmu, uint16_t address) {
+    uint8_t low = mmu_read(mmu, address);
+    uint8_t high = mmu_read(mmu, address + 1);
+    return (high << 8) | low;
+}
+
+void mmu_write16(MMU* mmu, uint16_t address, uint16_t value) {
+    mmu_write(mmu, address, value & 0xFF);
+    mmu_write(mmu, address + 1, value >> 8);
+}

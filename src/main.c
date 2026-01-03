@@ -25,6 +25,8 @@ int main(int argc, char **argv)
     int total_instructions = 100;
     int total_cycles = 0;
 
+    printf("PC OP CYCLES AF:BC:DE:HL\n\n");
+
     // execute 1st 10 ins
     for (int i = 0; i < total_instructions; i++) {
         uint16_t current_pc = cpu->pc;
@@ -33,11 +35,14 @@ int main(int argc, char **argv)
 
         // get the current opcode that was just executed
         uint8_t opcode = mmu_read(mmu, current_pc);
-        printf("PC:0x%04X | OP:0x%02X   | ", current_pc, opcode);
+        printf("$%04X $%02X (%d) (%02X%02X-%02X%02X-%02X%02X-%02X%02X)\t",
+                current_pc, opcode, cycles,
+                cpu->a, cpu->f, cpu->b, cpu->c,
+                cpu->d, cpu->e, cpu->h, cpu->l);
 
         // disassemble opcode
         d_asm_opcode(opcode);
-        printf(" (%d cycles)\n", cycles);
+        printf("\n");
 
         // Stop if CPU halted
         if (cpu->halted) {
@@ -46,13 +51,6 @@ int main(int argc, char **argv)
         }
     }
 
-    // CPU state
-    printf("PC: 0x%04X  SP: 0x%04X\n", cpu->pc, cpu->sp);
-    printf("AF: 0x%02X%02X  BC: 0x%02X%02X\n", 
-           cpu->a, cpu->f, cpu->b, cpu->c);
-    printf("DE: 0x%02X%02X  HL: 0x%02X%02X\n",
-           cpu->d, cpu->e, cpu->h, cpu->l);
-    printf("Total cycles: %d\n", total_cycles);
 
     // Cleanup
     free(cpu);

@@ -36,13 +36,21 @@ uint8_t mbc_none_read_rom(MBC* mbc, uint16_t address) {
 void mbc_none_write_rom(MBC* mbc, uint16_t address, uint8_t value) {
     // ROM writes do nothing for type 0x00
     // (Some cartridge types use ROM writes for banking)
+    (void)mbc;
+    (void)address;
+    (void)value;
 }
 
 uint8_t mbc_none_read_ram(MBC* mbc, uint16_t address) {
     // No external RAM
+    (void)mbc;
+    (void)address;
     return 0xFF;
 }
 
 void mbc_none_write_ram(MBC* mbc, uint16_t address, uint8_t value) {
     // No external RAM, ignore writes
+    (void)mbc;
+    (void)address;
+    (void)value;
 }
