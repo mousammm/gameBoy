@@ -44,7 +44,8 @@ int mmu_init(MMU* mmu, Cartridge* cart) {
         case 0x03:  // MBC1 + RAM + BATTERY
             // mmu->mbc = mbc1_create(cart);  // Implement later
             printf("Cartridge Type NOT Implemented(type 0x%02X)\n",cart->cartridge_type);
-            return -1;
+            mmu->mbc = mbc_none_create(cart);
+            return 0;
             break;
             
         default:

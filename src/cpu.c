@@ -1,5 +1,6 @@
 // cpu.c - MINIMAL IMPLEMENTATION
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "cpu.h"
 #include "mmu.h"
@@ -13,29 +14,40 @@ CPU* cpu_create(void) {
 void cpu_init(CPU* cpu, MMU* mmu) {
     cpu->mmu = mmu;
     
-    // Set initial PC to cartridge entry point (0x0100)
-    cpu->pc = 0x0100;
+    cpu->pc = 0x0100; // cartridge entry point
+    cpu->sp = 0xFFFE; // Initial stack pointer
     
-    // Initial stack pointer
-    cpu->sp = 0xFFFE;
-    
-    // Initial register values (typical after boot)
+    // Initial register values after boot
     cpu->a = 0x01;
-    cpu->f = 0xB0;
+    cpu->f = 0xB0;  // Flags: Z=1, N=0, H=1, C=1
     cpu->b = 0x00;
     cpu->c = 0x13;
     cpu->d = 0x00;
     cpu->e = 0xD8;
     cpu->h = 0x01;
     cpu->l = 0x4D;
+
+    cpu->ime = true;    // Interrupts enabled
+    cpu->halted = false;
+    cpu->cycles = 0;
+}
+
+void cpu_free(CPU *cpu)
+{
+    free(cpu);
 }
 
 int cpu_step(CPU* cpu, MMU* mmu) {
+    // Dont execute if halted
+    if (cpu->halted) {
+        return 4;   // still consumes cycles
+    }
+
     // Fetch instruction at PC
-    uint8_t opcode = cpu->mmu->mbc->read_rom(mmu->mbc, cpu->pc);
+    uint8_t opcode = mmu_read(cpu->mmu, cpu->pc);
     cpu->pc++;  // Move to next byte
     
-    // Decode and execute (start with just NOP)
+    // Decode and execute
     switch(opcode) {
         case 0x00:  // NOP - Do nothing
             printf("OPCODE:0x%02X PC:0x%04X OK\n", opcode, cpu->pc - 1);
