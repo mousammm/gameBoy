@@ -33,6 +33,9 @@ int main(int argc, char **argv)
         int cycles = cpu_step(cpu);
         total_cycles += cycles;
 
+        // Update timer with cycles that passed
+        // timer_step(timer, cycles);
+
         // get the current opcode that was just executed
         uint8_t opcode = mmu_read(mmu, current_pc);
         printf("$%04X $%02X (%d) (%02X%02X-%02X%02X-%02X%02X-%02X%02X)\t",
@@ -51,10 +54,9 @@ int main(int argc, char **argv)
         }
     }
 
-
     // Cleanup
-    free(cpu);
-    free(mmu);
+    cpu_free(cpu);
+    mmu_free(mmu);
     cartridge_free(cart);
     return 0;
 }

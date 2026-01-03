@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "mmu.h"
+#include "timer.h"
 
 MMU* mmu_create(void) {
     MMU* mmu = malloc(sizeof(MMU));
@@ -72,6 +73,18 @@ uint8_t mmu_read(MMU* mmu, uint16_t address) {
     else if (address >= 0xA000 && address < 0xC000) {
         // External RAM area - delegate to MBC
         return mmu->mbc->read_ram(mmu->mbc, address);
+    } 
+    else if (address >= 0xFF04 && address < 0xFF08) {
+        switch(address) {
+            case 0xFF04:  // DIV
+                return mmu->timer ? timer_read_div(mmu->timer) : 0;
+            case 0xFF05:  // TIMA
+                return mmu->timer ? timer_read_tima(mmu->timer) : 0;
+            case 0xFF06:  // TMA
+                return mmu->timer ? timer_read_tma(mmu->timer) : 0;
+            case 0xFF07:  // TAC
+                return mmu->timer ? timer_read_tac(mmu->timer) : 0;
+        }
     }
     else {
         // Internal memory (VRAM, WRAM, OAM, IO, HRAM)
@@ -90,6 +103,22 @@ void mmu_write(MMU* mmu, uint16_t address, uint8_t value) {
         // External RAM writes
         mmu->mbc->write_ram(mmu->mbc, address, value);
         return;
+    } 
+    else if (address >= 0xFF04 && address < 0xFF08) {
+        switch(address) {
+            case 0xFF04:  // DIV
+                if (mmu->timer) timer_write_div(mmu->timer, value);
+                return;
+            case 0xFF05:  // TIMA
+                if (mmu->timer) timer_write_tima(mmu->timer, value);
+                return;
+            case 0xFF06:  // TMA
+                if (mmu->timer) timer_write_tma(mmu->timer, value);
+                return;
+            case 0xFF07:  // TAC
+                if (mmu->timer) timer_write_tac(mmu->timer, value);
+                return;
+        }
     }
     else {
         // Internal memory writes

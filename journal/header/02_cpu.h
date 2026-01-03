@@ -6,28 +6,11 @@
 
 typedef struct CPU {
     // Registers (Little-endian: low byte first in union)
-    union {
-        struct {
-            uint8_t f;  // Flags register
-            uint8_t a;  // Accumulator
-        };
-        uint16_t af;    // Combined AF register
-    };
-    
-    union {
-        struct { uint8_t c; uint8_t b; };
-        uint16_t bc;
-    };
-    
-    union {
-        struct { uint8_t e; uint8_t d; };
-        uint16_t de;
-    };
-    
-    union {
-        struct { uint8_t l; uint8_t h; };
-        uint16_t hl;
-    };
+                    // Flags    Accumulator
+    union { struct { uint8_t f; uint8_t a; }; uint16_t af; };
+    union { struct { uint8_t c; uint8_t b; }; uint16_t bc; };
+    union { struct { uint8_t e; uint8_t d; }; uint16_t de; };
+    union { struct { uint8_t l; uint8_t h; }; uint16_t hl; };
     
     // Special registers
     uint16_t pc;        // Program Counter
@@ -48,14 +31,12 @@ typedef struct CPU {
     bool breakpoint_hit;
 } CPU;
 
-// Public interface
 void cpu_init(CPU* cpu);
 void cpu_reset(CPU* cpu);
 int cpu_execute_instruction(CPU* cpu, void* mmu_ptr);
 void cpu_request_interrupt(CPU* cpu, uint8_t interrupt_flag);
 void cpu_handle_interrupts(CPU* cpu, void* mmu_ptr);
 
-// Flag helpers
 #define CPU_FLAG_Z 0x80  // Zero flag
 #define CPU_FLAG_N 0x40  // Subtract flag
 #define CPU_FLAG_H 0x20  // Half Carry flag

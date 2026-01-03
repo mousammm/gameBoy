@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "mmu.h"
 
 typedef struct CPU{
@@ -81,4 +81,3 @@ static inline void cpu_set_hl(CPU* cpu, uint16_t value) {
     cpu->h = value >> 8;
     cpu->l = value & 0xFF;
 }
-

@@ -43,7 +43,7 @@ int cpu_step(CPU* cpu) {
 
     // Fetch instruction at PC
     uint8_t opcode = mmu_read(cpu->mmu, cpu->pc);
-    cpu->pc++;  // Move to next byte
+    cpu->pc++;
     
     // Decode and execute
     switch(opcode) {
@@ -57,13 +57,11 @@ int cpu_step(CPU* cpu) {
             cpu->pc = mmu_read16(cpu->mmu, cpu->pc);
             return 16;  // 16 cycles
         
-        // === HALT/STOP ===
         case 0x76:  // HALT
             cpu->halted = true;
             return 4;
             
         case 0x10: return 4; // STOP (treated as NOP for now)
-
         default: return 4;
     }
 }

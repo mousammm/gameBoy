@@ -29,6 +29,6 @@ void d_asm_opcode(uint8_t opcode){
         case 0x07: printf("RLCA"); break;
         case 0x76: printf("HALT"); break;
         case 0x10: printf("STOP"); break;
-        default: printf("???"); break;
+        default: printf("----"); break;
     }
 }
