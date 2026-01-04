@@ -1,5 +1,3 @@
-// cpu.c - MINIMAL IMPLEMENTATION
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "cpu.h"

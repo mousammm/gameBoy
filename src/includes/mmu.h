@@ -3,13 +3,11 @@
 
 #include "cartridge.h"
 #include "mbc.h"
-#include "timer.h"
 
 typedef struct MMU {
     uint8_t memory[0x10000];    // 64KB address space
     Cartridge* cart;
     MBC* mbc;
-    Timer* timer;
 } MMU;
 
 // Public interface
